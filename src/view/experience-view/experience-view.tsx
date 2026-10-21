@@ -3,6 +3,7 @@ import FullscreenButton from "@/components/hud/fullscreen-button";
 import MusicPlayer from "@/components/hud/music-player";
 import SceneDots from "@/components/hud/scene-dots";
 import SpotifyDock from "@/components/hud/spotify-dock";
+import VoiceCaption from "@/components/hud/voice-caption";
 import StoryClock from "@/components/hud/story-clock";
 import GoodnightScene from "@/components/scenes/goodnight-scene";
 import HeartGameScene from "@/components/scenes/heart-game-scene";
@@ -29,6 +30,12 @@ const ExperienceView = () => {
       <SkyBackdrop progress={vm.progress} stops={vm.stops} />
       <TapHearts />
       <SpotifyDock />
+      <VoiceCaption
+        text={vm.voiceCaption}
+        lineKey={vm.voiceLineKey}
+        skipLabel={vm.voiceSkipLabel}
+        onSkip={vm.skipVoice}
+      />
 
       <AnimatePresence>
         {!vm.isUnlocked && (

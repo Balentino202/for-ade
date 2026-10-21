@@ -18,6 +18,7 @@ import {
 // Spotify player. Either way the song loops forever and nothing else on
 // the site makes sound, so it plays non-stop unless she pauses it.
 const FADE_MS = 1200;
+const FADE_STEP_MS = 50;
 // How close to the end a pause counts as "the track finished".
 const LOOP_EDGE_MS = 1500;
 
@@ -63,33 +64,46 @@ const MusicProvider = ({ children }: { children: ReactNode }) => {
     audio.preload = "auto";
     audio.volume = 0;
     const onReady = () => setIsAvailable(true);
+    // The button shows what's really happening, not what we hoped for.
+    const onPlaying = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
     audio.addEventListener("canplay", onReady);
+    audio.addEventListener("playing", onPlaying);
+    audio.addEventListener("pause", onPause);
     audio.addEventListener("error", fallBackFromFile);
     audioRef.current = audio;
     return () => {
       audio.pause();
       audio.removeEventListener("canplay", onReady);
+      audio.removeEventListener("playing", onPlaying);
+      audio.removeEventListener("pause", onPause);
       audio.removeEventListener("error", fallBackFromFile);
       audioRef.current = null;
     };
   }, [mode, fallBackFromFile]);
 
+  // Fades with a timer, not animation frames: frame timestamps can be a
+  // hair *earlier* than the fade's start, which produced a negative
+  // volume — browsers reject that with an error, the fade died at 0, and
+  // the song "played" silently until she paused and played again.
   const fadeTo = useCallback((to: number, onDone?: () => void) => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (fadeRef.current !== null) cancelAnimationFrame(fadeRef.current);
+    if (fadeRef.current !== null) window.clearInterval(fadeRef.current);
     const from = audio.volume;
     const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min((now - start) / FADE_MS, 1);
-      audio.volume = from + (to - from) * t;
-      if (t < 1) fadeRef.current = requestAnimationFrame(step);
-      else {
+    const setVolume = (v: number) => {
+      audio.volume = Math.min(1, Math.max(0, v));
+    };
+    fadeRef.current = window.setInterval(() => {
+      const t = Math.min(1, Math.max(0, (performance.now() - start) / FADE_MS));
+      setVolume(from + (to - from) * t);
+      if (t >= 1) {
+        if (fadeRef.current !== null) window.clearInterval(fadeRef.current);
         fadeRef.current = null;
         onDone?.();
       }
-    };
-    fadeRef.current = requestAnimationFrame(step);
+    }, FADE_STEP_MS);
   }, []);
 
   // ── Spotify mode ───────────────────────────────────────────────────
@@ -148,14 +162,18 @@ const MusicProvider = ({ children }: { children: ReactNode }) => {
     }
     const audio = audioRef.current;
     if (!audio) return;
+    if (fadeRef.current !== null) window.clearInterval(fadeRef.current);
+    audio.volume = 0;
     audio
       .play()
       .then(() => {
         setIsAvailable(true);
-        setIsPlaying(true);
         fadeTo(targetVolume);
       })
-      .catch(() => setIsPlaying(false));
+      .catch(() => {
+        // Blocked (no tap yet): make sure it isn't left silent for later.
+        audio.volume = targetVolume;
+      });
   }, [mode, fadeTo, targetVolume]);
 
   const stopPlayback = useCallback(() => {
@@ -163,7 +181,6 @@ const MusicProvider = ({ children }: { children: ReactNode }) => {
       spotifyRef.current?.pause();
       return;
     }
-    setIsPlaying(false);
     fadeTo(0, () => audioRef.current?.pause());
   }, [mode, fadeTo]);
 
@@ -172,6 +189,24 @@ const MusicProvider = ({ children }: { children: ReactNode }) => {
     wantsPlayRef.current = true;
     startPlayback();
   }, [startPlayback]);
+
+  const prime = useCallback(() => {
+    const audio = audioRef.current;
+    if (mode !== "file" || !audio || !audio.paused) return;
+    audio.muted = true;
+    audio
+      .play()
+      .then(() => {
+        // If she (or the intro) already asked for music meanwhile, keep it.
+        if (wantsPlayRef.current) return;
+        audio.pause();
+        audio.currentTime = 0;
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        audio.muted = false;
+      });
+  }, [mode]);
 
   const pause = useCallback(() => {
     wantsPlayRef.current = false;
@@ -186,13 +221,14 @@ const MusicProvider = ({ children }: { children: ReactNode }) => {
       isPlaying,
       hasStarted,
       play,
+      prime,
       pause,
       // Follow what's actually audible: if the browser blocked the first
       // attempt, her first tap must start the music, not "pause" it.
       toggle: () => (isPlaying ? pause() : play()),
       spotifyMountRef: setSpotifyEl,
     }),
-    [mode, isAvailable, isPlaying, hasStarted, play, pause]
+    [mode, isAvailable, isPlaying, hasStarted, play, prime, pause]
   );
 
   return (

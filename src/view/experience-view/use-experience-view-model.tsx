@@ -6,6 +6,7 @@ import {
 } from "@/constants/scene-constant";
 import { content } from "@/data";
 import { useFullscreen } from "@/hooks/use-fullscreen";
+import { useVoiceIntro } from "@/hooks/use-voice-intro";
 import { useReducedMotion, useScroll } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -26,6 +27,8 @@ const SCENE_COPY = {
   [SceneConstant.wishes]: content.wishes,
   [SceneConstant.goodnight]: content.goodnight,
 };
+
+const VOICE_LINES = content.voiceIntro?.lines ?? [];
 
 const evenStops = SCENE_ORDER.map((_, i) => i / (SCENE_ORDER.length - 1));
 
@@ -58,6 +61,7 @@ const withName = (template: string, fallback: string) => {
 export const useExperienceViewModel = () => {
   const music = useMusic();
   const fullscreen = useFullscreen();
+  const voice = useVoiceIntro(VOICE_LINES);
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
@@ -144,9 +148,15 @@ export const useExperienceViewModel = () => {
 
   const unlock = () => {
     // Her tap is what allows the browser to start audio and go full
-    // screen, so both happen right here.
+    // screen, so all of it starts right here. With a voice intro, the
+    // song is "primed" now and starts the moment the voice finishes.
+    if (VOICE_LINES.length > 0) {
+      music.prime();
+      voice.start(music.play);
+    } else {
+      music.play();
+    }
     fullscreen.enter();
-    music.play();
     window.scrollTo({ top: 0 });
     setIsUnlocked(true);
   };
@@ -157,7 +167,11 @@ export const useExperienceViewModel = () => {
     content,
     isUnlocked,
     unlock,
-    showSoundHint: content.music !== null,
+    showSoundHint: content.music !== null || VOICE_LINES.length > 0,
+    voiceCaption: voice.currentLine?.text ?? null,
+    voiceLineKey: voice.lineIndex,
+    voiceSkipLabel: content.voiceIntro?.skipLabel ?? "Skip",
+    skipVoice: voice.skip,
     canFullscreen: fullscreen.isSupported,
     isFullscreen: fullscreen.isFullscreen,
     toggleFullscreen: fullscreen.toggle,

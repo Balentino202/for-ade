@@ -27,6 +27,13 @@ export type MusicTrack = {
   volume?: number;
 };
 
+export type VoiceLine = {
+  /** Shown on screen as a subtitle while it's spoken. */
+  text: string;
+  /** Path inside `public/`, e.g. "/media/voice-1.m4a". */
+  audio: string;
+};
+
 export type NotificationIcon =
   | "cloud"
   | "hourglass"
@@ -86,6 +93,12 @@ export type ExperienceContent = {
   siteTitle: string;
 
   music: MusicTrack | null;
+
+  /** Spoken right after she taps in; the song starts when it finishes. */
+  voiceIntro: {
+    lines: VoiceLine[];
+    skipLabel: string;
+  } | null;
 
   lockScreen: {
     /** Optional photo used as the lock-screen wallpaper. */

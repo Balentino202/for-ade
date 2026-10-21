@@ -42,6 +42,35 @@ export const content: ExperienceContent = {
     volume: 0.45,
   },
 
+  // ── Voice intro ────────────────────────────────────────────────────
+  // Right after she taps the notification, a voice says these lines (each
+  // one appears on screen as a subtitle), then the song fades in.
+  //
+  // The voice files were made with the Mac's "Daniel" voice. It would
+  // mean MUCH more in your own voice: record each line as a short voice
+  // note, save them as voice-1.m4a … voice-5.m4a (or .mp3 — update the
+  // paths below) in public/media/, and keep the `text` matching what you
+  // say. Set `voiceIntro: null` to skip the voice entirely.
+  voiceIntro: {
+    lines: [
+      { text: "For you, Ade.", audio: "/media/voice-1.m4a" },
+      { text: "From Ayomide.", audio: "/media/voice-2.m4a" },
+      {
+        text: "I made you a little something today.",
+        audio: "/media/voice-3.m4a",
+      },
+      {
+        text: "So turn your sound up, take your time, and scroll slowly.",
+        audio: "/media/voice-4.m4a",
+      },
+      {
+        text: "This is what a day with you on my mind looks like.",
+        audio: "/media/voice-5.m4a",
+      },
+    ],
+    skipLabel: "Skip",
+  },
+
   // ── The lock screen she sees first ────────────────────────────────
   lockScreen: {
     // Her photo as the lock-screen wallpaper. Remove this line for a

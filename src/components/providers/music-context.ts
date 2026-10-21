@@ -17,6 +17,12 @@ export type MusicController = {
   /** Set once the story has started, so players can appear. */
   hasStarted: boolean;
   play: () => void;
+  /**
+   * Call from a tap when the music will start *later* (after the voice
+   * intro): phones only allow audio that was first started by a tap, so
+   * this starts it silently and pauses it straight away.
+   */
+  prime: () => void;
   pause: () => void;
   toggle: () => void;
   /** Where the Spotify player mounts (only used in "spotify" mode). */
