@@ -1,0 +1,24 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.local
+.env.*.local
+
+# editor / OS
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# tsc build info
+*.tsbuildinfo
+
+# yarn
+.yarn/*
+!.yarn/releases
+.pnp.*

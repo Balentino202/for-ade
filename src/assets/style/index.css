@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+/* "A Day With You on My Mind" — her favourite colours, sky blue and
+   lilac, played out as a sky that changes from morning to midnight.
+   Day scenes use dark ink text; night scenes use starlight text. */
+@theme inline {
+  --font-sans:
+    "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif:
+    "Cormorant Garamond", ui-serif, Georgia, "Times New Roman", serif;
+  --font-script: "Great Vibes", "Cormorant Garamond", cursive;
+  --font-hand: "Caveat", "Segoe Print", cursive;
+
+  --radius: 1rem;
+  --radius-xs: calc(var(--radius) * 0.5);
+  --radius-sm: calc(var(--radius) * 0.75);
+  --radius-md: calc(var(--radius) * 0.875);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+
+  /* Her palette */
+  --color-sky: #87ceeb;
+  --color-sky-light: #bfe6ff;
+  --color-sky-deep: #3d8fc7;
+  --color-lilac: #c8a2c8;
+  --color-lilac-light: #e6d3f5;
+  --color-lilac-deep: #8a64b8;
+  --color-peach: #f9cbb7;
+
+  /* Text + night tones */
+  --color-ink: #1b1e4b;
+  --color-ink-soft: #464a7d;
+  --color-midnight: #0e0b26;
+  --color-dusk: #1c1745;
+  --color-starlight: #f5f1ff;
+  --color-haze: #c4bce6;
+
+  /* shadcn semantic tokens */
+  --color-background: var(--color-sky-light);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+  --color-primary-foreground: #ffffff;
+  --color-muted-foreground: var(--color-ink-soft);
+  --color-border: rgb(255 255 255 / 0.45);
+  --color-ring: var(--color-lilac-deep);
+
+  --shadow-float:
+    0 2px 6px rgb(27 30 75 / 0.08), 0 24px 50px -16px rgb(27 30 75 / 0.35);
+  --shadow-glow:
+    0 0 0 1px rgb(230 211 245 / 0.25), 0 10px 40px -8px rgb(155 123 196 / 0.6);
+
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  --animate-float-y: float-y 6s ease-in-out infinite;
+  --animate-drift: drift var(--drift-duration, 60s) linear infinite;
+  --animate-shimmer: shimmer 3.5s ease-in-out infinite;
+  --animate-bounce-soft: bounce-soft 2s ease-in-out infinite;
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+  @keyframes float-y {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes drift {
+    from {
+      transform: translateX(-30vw);
+    }
+    to {
+      transform: translateX(130vw);
+    }
+  }
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-120%) skewX(-20deg);
+    }
+    60%,
+    100% {
+      transform: translateX(320%) skewX(-20deg);
+    }
+  }
+  @keyframes bounce-soft {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(8px);
+    }
+  }
+}
+
+/* Used from inline styles (music equaliser), so it lives outside @theme
+   where Tailwind might otherwise tree-shake it. */
+@keyframes eq {
+  0% {
+    transform: scaleY(0.25);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* In the base layer so border-colour utilities (e.g. border-ink) win. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  /* Quick taps on phones should never zoom the page. */
+  button,
+  a {
+    touch-action: manipulation;
+  }
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--color-sky-light);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--color-lilac);
+  color: var(--color-ink);
+}
+
+/* Sky-to-lilac gradient text for night headings. */
+.text-dream {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-sky-light) 0%,
+    var(--color-sky) 30%,
+    var(--color-lilac-light) 65%,
+    var(--color-lilac) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Frosted glass that reads on the bright day sky. */
+.glass {
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 0.55),
+    rgb(255 255 255 / 0.28)
+  );
+  border: 1px solid rgb(255 255 255 / 0.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+}
+/* ...and its night-time sibling. */
+.glass-night {
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 0.12),
+    rgb(255 255 255 / 0.04)
+  );
+  border: 1px solid rgb(230 211 245 / 0.2);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+/* 3D helpers — Tailwind v4 has no backface utility. */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Letter paper, warmed by the golden-hour sky behind it. */
+.paper {
+  background-color: #fffaf6;
+  background-image:
+    radial-gradient(
+      120% 60% at 50% 0%,
+      rgb(249 203 183 / 0.35),
+      transparent 70%
+    ),
+    radial-gradient(
+      80% 50% at 100% 100%,
+      rgb(230 211 245 / 0.6),
+      transparent 70%
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Purely decorative motion is hidden. */
+  .motion-decor {
+    display: none;
+  }
+}
