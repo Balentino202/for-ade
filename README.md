@@ -79,14 +79,24 @@ src/
 
 ## Deploy
 
-The build output is a static `dist/` folder.
+It's live on GitHub Pages: **https://balentino202.github.io/for-ade/**
 
-- **Vercel**: push to GitHub → "Add New Project" on vercel.com → import the
-  repo. Vercel detects Vite (build `yarn build`, output `dist`).
-  `vercel.json` is included for SPA routing.
-- **Netlify**: push to GitHub → "Add new site" → import. Build command
-  `yarn build`, publish directory `dist`. `public/_redirects` is included.
-  Or drag-and-drop the `dist/` folder onto app.netlify.com/drop.
+After changing anything (e.g. `src/data.ts`), update the live site with:
+
+```bash
+yarn deploy
+```
+
+Then save your source changes to GitHub too:
+
+```bash
+git add -A && git commit -m "Update" && git push
+```
+
+`yarn deploy` builds the site for the `/for-ade/` sub-folder and pushes
+it to the `gh-pages` branch, which GitHub Pages serves. It's live about a
+minute later. (`yarn build` is still the right command for Vercel or
+Netlify, which serve from the domain root.)
 
 Note: a deployed site is public to anyone who has the link. It is not
 password-protected.

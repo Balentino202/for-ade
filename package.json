@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:pages": "tsc -b && vite build --base=/for-ade/",
+    "deploy": "bash scripts/deploy-pages.sh",
     "preview": "vite preview",
     "type-check": "tsc -b --force",
     "lint": "eslint .",
